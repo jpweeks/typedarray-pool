@@ -66,7 +66,6 @@ Allocates a typed array (or ArrayBuffer) with at least n elements.
 * `pool.mallocArrayBuffer`
 * `pool.mallocDataView`
 * `pool.mallocUint8Clamped`
-* `pool.mallocBuffer`
 
 ### `pool.free(array)`
 Returns the array back to the pool.

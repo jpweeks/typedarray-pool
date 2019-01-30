@@ -2,6 +2,7 @@
 
 var bits = require('bit-twiddle')
 var dup = require('dup')
+var isBuffer = require('is-buffer')
 
 //Legacy pool support
 if(!global.__TYPEDARRAY_POOL) {
@@ -36,7 +37,7 @@ var DATA    = POOL.DATA
   , BUFFER  = POOL.BUFFER
 
 exports.free = function free(array) {
-  if(Buffer.isBuffer(array)) {
+  if(isBuffer(array)) {
     BUFFER[bits.log2(array.length)].push(array)
   } else {
     if(Object.prototype.toString.call(array) !== '[object ArrayBuffer]') {
@@ -109,7 +110,7 @@ exports.malloc = function malloc(n, dtype) {
       case 'uint8_clamped':
         return mallocUint8Clamped(n)
       case 'buffer':
-        return mallocBuffer(n)
+        throw 'Buffer not supported'
       case 'data':
       case 'dataview':
         return mallocDataView(n)
@@ -185,17 +186,6 @@ function mallocDataView(n) {
   return new DataView(mallocArrayBuffer(n), 0, n)
 }
 exports.mallocDataView = mallocDataView
-
-function mallocBuffer(n) {
-  n = bits.nextPow2(n)
-  var log_n = bits.log2(n)
-  var cache = BUFFER[log_n]
-  if(cache.length > 0) {
-    return cache.pop()
-  }
-  return new Buffer(n)
-}
-exports.mallocBuffer = mallocBuffer
 
 exports.clearCache = function clearCache() {
   for(var i=0; i<32; ++i) {
